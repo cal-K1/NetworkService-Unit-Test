@@ -7,31 +7,39 @@ using Xunit;
 using NetworkUtility;
 using Network_Utility_Unit_Test_Example.Ping;
 using FluentAssertions;
+using FakeItEasy;
 using Xunit.Sdk;
 using System.Net.WebSockets;
 using System.Globalization;
 using FluentAssertions.Extensions;
 using System.Net.NetworkInformation;
+using Network_Utility_Unit_Test_Example.DNS;
 
 namespace NetworkUtility.Test.PingTests
 {
     public class NetworkServiceTests
     {
         private readonly NetworkService _pingService;
+        private readonly IDNS _dNS;
         public NetworkServiceTests()
         {
+            // Dependencies
+            // Using FakeItEasy to fake the interface to allow us to do our tests
+            // Means we dont have to manually pass through the dns and fix everything
+            _dNS = A.Fake<IDNS>();
+
             // SUT (System Under Test)
-            _pingService = new NetworkService();
+            _pingService = new NetworkService(_dNS);
         }
 
         [Fact]
         public void NetworkService_SendPing_ReturnString()
         {
             // Arrange
-            var pingService = new NetworkService();
+            A.CallTo(() => _dNS.SendDNS()).Returns(true);
 
             // Act
-            var result = pingService.SendPing();
+            var result = _pingService.SendPing();
 
             // Assert 
             // Examples of nuget package FluentAssertions and what types of assertions it is capable of.
@@ -47,7 +55,7 @@ namespace NetworkUtility.Test.PingTests
         public void NetworkService_PingTimeout_ReturnInt(int a, int b, int expected)
         {
             // Arrange
-            var pingService = new NetworkService();
+            var pingService = new NetworkService(_dNS);
 
             // Act
             var result = pingService.PingTimeout(a, b);

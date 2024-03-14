@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Network_Utility_Unit_Test_Example.DNS;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,11 +11,24 @@ namespace Network_Utility_Unit_Test_Example.Ping
 {
     public class NetworkService
     {
+        private readonly IDNS _dNS;
+
+        public NetworkService(IDNS dNS)
+        {
+            _dNS = dNS;
+        }
+
         public string SendPing()
         {
-            // SearchDNS();
-            // BuildPacket();
-            return "Success: Ping Sent";
+            var dnsSuccess = _dNS.SendDNS();
+            if (dnsSuccess)
+            {
+                return "Success: Ping Sent";
+            }
+            else
+            {
+                return "Failed: Ping not Sent";
+            }
         }
 
         public int PingTimeout(int a, int b)
